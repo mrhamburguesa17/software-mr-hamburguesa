@@ -1,9 +1,9 @@
-/** @type {import('next').NextConfig} */
+﻿/** @type {import('next').NextConfig} */
 const withPWA = require('next-pwa')({
-  dest: 'public',                      // genera el service worker y assets en /public
-  register: true,                      // registra automáticamente el SW
-  skipWaiting: true,                   // toma control apenas se instala
-  disable: process.env.NODE_ENV === 'development' // PWA solo en build prod
+  dest: 'public',
+  register: true,
+  skipWaiting: true,
+  disable: process.env.NODE_ENV === 'development'
 })
 
 module.exports = withPWA({
