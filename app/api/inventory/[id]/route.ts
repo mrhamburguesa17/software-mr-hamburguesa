@@ -1,0 +1,3 @@
+import { NextResponse } from 'next/server'; import { prisma } from '@/lib/db'
+export async function DELETE(_:Request,{params}:{params:{id:string}}){ await prisma.inventoryItem.delete({ where:{ id:Number(params.id) } }); return NextResponse.json({deleted:true}) }
+export async function PUT(req:Request,{params}:{params:{id:string}}){ const b=await req.json(); const row=await prisma.inventoryItem.update({ where:{id:Number(params.id)}, data:b }); return NextResponse.json(row) }

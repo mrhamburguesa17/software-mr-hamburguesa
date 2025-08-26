@@ -1,0 +1,4 @@
+import { NextResponse } from 'next/server'; import { prisma } from '@/lib/db'
+export async function GET(){ return NextResponse.json(await prisma.inventoryItem.findMany({ include:{supplier:true}, orderBy:{id:'desc'}})) }
+export async function POST(req:Request){ const b=await req.json(); if(!b.name||!b.unit) return NextResponse.json({error:'name/unit required'},{status:400})
+  const row=await prisma.inventoryItem.create({ data:{ name:b.name, unit:b.unit, category:b.category??null, minStock:+(b.minStock??0), currentStock:+(b.currentStock??0), costPerUnit:+(b.costPerUnit??0), supplierId:b.supplierId??null } }); return NextResponse.json(row,{status:201}) }
