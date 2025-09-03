@@ -9,6 +9,7 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// --- MODELOS ---
 model Supplier {
   id        Int             @id @default(autoincrement())
   name      String
@@ -33,8 +34,12 @@ model InventoryItem {
   supplier      Supplier?           @relation(fields: [supplierId], references: [id])
   purchaseItems PurchaseItem[]
   movements     InventoryMovement[]
-  createdAt     DateTime            @default(now())
-  updatedAt     DateTime            @updatedAt
+
+  // Lado opuesto a RecipeItem.item
+  recipeItems RecipeItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Purchase {
@@ -46,6 +51,10 @@ model Purchase {
   notes      String?
   items      PurchaseItem[]
   createdAt  DateTime       @default(now())
+
+  // Estado (usamos String por SQLite). Valores esperados: DRAFT | ORDERED | RECEIVED | CANCELLED
+  status       String    @default("ORDERED")
+  expectedDate DateTime?
 }
 
 model PurchaseItem {
@@ -62,8 +71,55 @@ model InventoryMovement {
   id        Int           @id @default(autoincrement())
   itemId    Int
   item      InventoryItem @relation(fields: [itemId], references: [id])
-  type      String // IN | OUT | ADJUST
+  type      String // 'purchase' | 'sale' | 'adjust' | 'waste'
   quantity  Float
   note      String?
   createdAt DateTime      @default(now())
+}
+
+model Recipe {
+  id        Int          @id @default(autoincrement())
+  name      String
+  price     Float        @default(0)
+  items     RecipeItem[]
+  sales     SaleItem[]
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+}
+
+model RecipeItem {
+  id       Int           @id @default(autoincrement())
+  recipeId Int
+  recipe   Recipe        @relation(fields: [recipeId], references: [id])
+  itemId   Int
+  item     InventoryItem @relation(fields: [itemId], references: [id])
+  quantity Float // cantidad por UNA unidad de receta (ej: 0.18 kg carne)
+}
+
+model Sale {
+  id       Int        @id @default(autoincrement())
+  date     DateTime   @default(now())
+  subtotal Float      @default(0)
+  items    SaleItem[]
+}
+
+model SaleItem {
+  id        Int    @id @default(autoincrement())
+  saleId    Int
+  sale      Sale   @relation(fields: [saleId], references: [id])
+  recipeId  Int
+  recipe    Recipe @relation(fields: [recipeId], references: [id])
+  quantity  Int
+  unitPrice Float  @default(0)
+}
+
+model CashClosing {
+  id         Int      @id @default(autoincrement())
+  date       DateTime @default(now())
+  totalSales Float
+  totalCost  Float
+  margin     Float
+  byMethod   String   @default("{}") // JSON serializado: { efectivo: 1234, tarjeta: 500, qr: 200 }
+  tickets    Int
+  itemsSold  Int
 }

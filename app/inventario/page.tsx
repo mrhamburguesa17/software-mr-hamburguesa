@@ -171,24 +171,23 @@ export default function Page() {
             </tr>
           </thead>
           <tbody>
-            {rows.map(r => (
-              <tr key={r.id}>
-                <td>{r.id}</td>
-                <td>{r.name}</td>
-                <td>{r.unit}</td>
-                <td>{r.category || '-'}</td>
-                <td>{r.currentStock}</td>
-                <td>{r.minStock}</td>
-                <td>{r.costPerUnit}</td>
-                <td>{(r as any).supplier?.name || '-'}</td>
-                <td>
-                  <button className="btn" onClick={() => remove(r.id)}>
-                    Borrar
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
+  {rows.map(r=>{
+    const low = r.minStock>0 && r.currentStock < r.minStock
+    return (
+      <tr key={r.id} className={low ? 'bg-red-50' : ''}>
+        <td>{r.id}</td>
+        <td>{r.name}</td>
+        <td>{r.unit}</td>
+        <td>{r.category||'-'}</td>
+        <td className={low ? 'text-red-600 font-semibold' : ''}>{r.currentStock}</td>
+        <td>{r.minStock}</td>
+        <td>{r.costPerUnit}</td>
+        <td>{(r as any).supplier?.name||'-'}</td>
+        <td><button className="btn" onClick={()=>remove(r.id)}>Borrar</button></td>
+      </tr>
+    )
+  })}
+</tbody>
         </table>
       </section>
     </main>
