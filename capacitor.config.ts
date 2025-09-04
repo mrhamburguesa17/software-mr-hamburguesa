@@ -1,13 +1,14 @@
-import { CapacitorConfig } from '@capacitor/cli'
+import type { CapacitorConfig } from '@capacitor/cli'
 
 const config: CapacitorConfig = {
-  appId: 'com.mrhamburguesa.app',
+  appId: 'com.mrh.software',
   appName: 'Software Mr Hamburguesa',
   webDir: 'out',
-  bundledWebRuntime: false,
   server: {
-    url: 'http://192.168.1.53:3000', // emulador -> tu localhost
-    cleartext: true
-  }
+    url: 'http://192.168.1.53:3000', // usalo solo si lo necesitás en desarrollo
+    cleartext: true,
+  },
 }
+
 export default config
+
