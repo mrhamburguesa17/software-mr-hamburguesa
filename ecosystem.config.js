@@ -10,8 +10,6 @@ module.exports = {
       env: {
         NODE_ENV: "production",
         PORT: "3001",
-        DATABASE_URL: "postgresql://mrh_user:SuperPassword123@localhost:5432/mrh_erp?schema=public",
-        JWT_SECRET: "cambia-este-secreto-por-uno-largo"
       }
     }
   ]

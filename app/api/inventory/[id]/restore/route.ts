@@ -4,8 +4,8 @@ import { prisma } from '@/lib/db'
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
 
-// DELETE /api/inventory/:id  -> soft delete (active=false, deletedAt=now)
-export async function DELETE(
+// POST /api/inventory/:id/restore  -> restaurar ítem (active=true, deletedAt=null)
+export async function POST(
   _req: Request,
   { params }: { params: { id: string } }
 ) {
@@ -15,16 +15,16 @@ export async function DELETE(
   }
 
   try {
-    await prisma.inventoryItem.update({
+    const updated = await prisma.inventoryItem.update({
       where: { id },
-      data: { active: false, deletedAt: new Date() }
+      data: { active: true, deletedAt: null }
     })
-    return NextResponse.json({ ok: true })
+    return NextResponse.json({ ok: true, id: updated.id })
   } catch (err: any) {
     if (err?.code === 'P2025') {
       return NextResponse.json({ error: 'Ítem no encontrado' }, { status: 404 })
     }
-    return NextResponse.json({ error: 'No se pudo borrar' }, { status: 500 })
+    return NextResponse.json({ error: 'No se pudo restaurar' }, { status: 500 })
   }
 }
 

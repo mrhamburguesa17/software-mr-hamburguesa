@@ -1,5 +1,6 @@
 'use client'
 import { useEffect, useState } from 'react'
+import Link from 'next/link'
 
 type Item = {
   id: number
@@ -80,14 +81,22 @@ export default function Page() {
 
   async function remove(id: number) {
     if (!confirm('Eliminar insumo?')) return
-    await fetch(`/api/inventory/${id}`, { method: 'DELETE' })
+    const res = await fetch(`/api/inventory/${id}`, { method: 'DELETE' })
+    if (!res.ok) {
+      const j = await res.json().catch(() => ({}))
+      alert(j?.error || 'No se pudo borrar')
+      return
+    }
     await loadInventory()
   }
 
   return (
     <main className="space-y-4">
       <section className="card">
-        <h2 className="text-lg font-semibold mb-3">Inventario</h2>
+         <div className="flex items-center justify-between mb-3">
+    <h2 className="text-lg font-semibold">Inventario</h2>
+    <Link href="/inventario/papelera" className="btn">Papelera</Link>
+  </div>
         <form onSubmit={add} className="grid md:grid-cols-7 gap-2">
           <input
             className="input"
@@ -156,7 +165,7 @@ export default function Page() {
       </section>
 
       <section className="card">
-        <table className="table">
+        <table className="table text-gray-200">
           <thead>
             <tr>
               <th>ID</th>
@@ -171,25 +180,30 @@ export default function Page() {
             </tr>
           </thead>
           <tbody>
-  {rows.map(r=>{
-    const low = r.minStock>0 && r.currentStock < r.minStock
-    return (
-      <tr key={r.id} className={low ? 'bg-red-50' : ''}>
-        <td>{r.id}</td>
-        <td>{r.name}</td>
-        <td>{r.unit}</td>
-        <td>{r.category||'-'}</td>
-        <td className={low ? 'text-red-600 font-semibold' : ''}>{r.currentStock}</td>
-        <td>{r.minStock}</td>
-        <td>{r.costPerUnit}</td>
-        <td>{(r as any).supplier?.name||'-'}</td>
-        <td><button className="btn" onClick={()=>remove(r.id)}>Borrar</button></td>
-      </tr>
-    )
-  })}
-</tbody>
+            {rows.map(r => {
+              const low = r.minStock > 0 && r.currentStock < r.minStock
+              return (
+                <tr key={r.id} className={low ? 'bg-red-900/20 ring-1 ring-red-800/40' : ''}>
+                  <td>{r.id}</td>
+                  <td>{r.name}</td>
+                  <td>{r.unit}</td>
+                  <td>{r.category || '-'}</td>
+                  <td className={low ? 'text-red-600 font-semibold' : ''}>{r.currentStock}</td>
+                  <td>{r.minStock}</td>
+                  <td>{r.costPerUnit}</td>
+                  <td>{(r as any).supplier?.name || '-'}</td>
+                  <td>
+                    <button className="btn" onClick={() => remove(r.id)}>
+                      Borrar
+                    </button>
+                  </td>
+                </tr>
+              )
+            })}
+          </tbody>
         </table>
       </section>
     </main>
   )
 }
+

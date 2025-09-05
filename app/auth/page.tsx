@@ -16,15 +16,17 @@ function LoginInner() {
   async function submit(e: React.FormEvent) {
     e.preventDefault()
     setLoading(true); setError(null)
-    const res = await fetch('http://51.79.54.8/v1/auth/login', {
+
+    // 👉 ERP: usar la API interna que setea la cookie (no el backend)
+    const res = await fetch('/api/auth/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username, password })
     })
+
     setLoading(false)
-    if (res.ok) {
-      router.replace(next)
-    } else {
+    if (res.ok) router.replace(next)
+    else {
       const j = await res.json().catch(() => ({ error: 'Error' }))
       setError(j.error || 'Credenciales inválidas')
     }

@@ -5,7 +5,7 @@ generator client {
 
 // Base de datos (SQLite en dev)
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -38,8 +38,11 @@ model InventoryItem {
   // Lado opuesto a RecipeItem.item
   recipeItems RecipeItem[]
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+active        Boolean             @default(true)
+  deletedAt     DateTime?           // null = activo; no-null = “en papelera”
+
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
 }
 
 model Purchase {

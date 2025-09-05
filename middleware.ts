@@ -2,46 +2,32 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import { jwtVerify } from 'jose'
 
-const COOKIE_NAME = 'mh_auth'
-const secret = new TextEncoder().encode(process.env.AUTH_SECRET || 'insecure')
-
 const PUBLIC_PATHS = [
-  '/login',
-  '/api/auth/login',
-  '/icon.png', '/manifest.json',
-  '/favicon.ico'
+  '/auth',        // tu UI de login
+  '/api/auth',    // endpoints de login/logout
+  '/_next', '/favicon.ico', '/sw.js', '/manifest.json', '/icons'
 ]
+
+function isPublic(path: string) {
+  return PUBLIC_PATHS.some(p => path.startsWith(p))
+}
 
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl
+  if (isPublic(pathname)) return NextResponse.next()
 
-  // Permitir estáticos y públicos
-  if (
-    pathname.startsWith('/_next') ||
-    pathname.startsWith('/public') ||
-    PUBLIC_PATHS.includes(pathname)
-  ) {
-    return NextResponse.next()
-  }
-
-  // Verificar cookie JWT
-  const token = req.cookies.get(COOKIE_NAME)?.value
-  if (!token) {
-    const url = new URL('/login', req.url)
-    url.searchParams.set('next', pathname)
-    return NextResponse.redirect(url)
-  }
+  const token = req.cookies.get('mh_auth')?.value
+  if (!token) return NextResponse.redirect(new URL('/auth', req.url))
 
   try {
-    await jwtVerify(token, secret, { algorithms: ['HS256'] })
+    await jwtVerify(token, new TextEncoder().encode(process.env.JWT_SECRET || 'dev-secret'))
     return NextResponse.next()
   } catch {
-    const url = new URL('/login', req.url)
-    url.searchParams.set('next', pathname)
-    return NextResponse.redirect(url)
+    return NextResponse.redirect(new URL('/auth', req.url))
   }
 }
 
 export const config = {
-  matcher: ['/((?!api/auth/logout).*)'] // protegemos todo salvo logout (que igual valida cookie)
+  matcher: ['/((?!_next/static|_next/image).*)'],
 }
+

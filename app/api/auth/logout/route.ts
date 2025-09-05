@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
-import { destroySession } from '@/lib/auth'
-
 export async function POST() {
-  destroySession()
-  return NextResponse.json({ ok: true })
+  const res = NextResponse.json({ ok: true })
+  res.cookies.set('mh_auth', '', { httpOnly: true, path: '/', maxAge: 0 })
+  return res
 }
+
